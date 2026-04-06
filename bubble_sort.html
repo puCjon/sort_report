@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>氣泡排序法演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .array-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .array-element {
+            width: 50px;
+            height: 50px;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .highlight {
+            background-color: #FF5722;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        .complexity {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>氣泡排序法 (Bubble Sort)</h1>
+
+    <h2>操作原理</h2>
+    <p>氣泡排序是一種簡單的排序演算法。它重複地走訪要排序的數列，一次比較兩個元素，如果他們的順序錯誤就把他們交換過來。走訪數列的工作是重複地進行直到沒有再需要交換，也就是說該數列已經排序完成。</p>
+    <p>這個演算法的名字由來是因為越小的元素會經由交換慢慢「浮」到數列的頂端（升序或降序排列），就如同碳酸飲料中的氣泡最終會上浮到頂端一樣，故名「氣泡排序」。</p>
+
+    <h2>操作過程</h2>
+    <div class="array-container" id="array-container">
+        <!-- 數組元素將動態生成 -->
+    </div>
+    <button onclick="startSort()">開始排序</button>
+    <button onclick="resetArray()">重置數組</button>
+    <p id="step-info">點擊「開始排序」來查看排序過程。</p>
+
+    <h2>複雜度</h2>
+    <div class="complexity">
+        <p><strong>時間複雜度：</strong></p>
+        <ul>
+            <li>最壞情況：O(n²) - 當數組完全逆序時</li>
+            <li>最佳情況：O(n) - 當數組已經排序時（優化版本）</li>
+            <li>平均情況：O(n²)</li>
+        </ul>
+        <p><strong>空間複雜度：</strong>O(1) - 只使用常數額外的空間</p>
+        <p><strong>穩定性：</strong>穩定排序 - 相等元素的相對順序不會改變</p>
+    </div>
+
+    <script>
+        let array = [];
+        let container = document.getElementById('array-container');
+        let stepInfo = document.getElementById('step-info');
+        let isSorting = false;
+
+        function generateRandomArray(size = 5) {
+            let newArray = [];
+            for (let i = 0; i < size; i++) {
+                newArray.push(Math.floor(Math.random() * 100) + 1);
+            }
+            return newArray;
+        }
+
+        function renderArray(highlightIndices = []) {
+            container.innerHTML = '';
+            array.forEach((num, index) => {
+                let element = document.createElement('div');
+                element.className = 'array-element';
+                if (highlightIndices.includes(index)) {
+                    element.classList.add('highlight');
+                }
+                element.textContent = num;
+                container.appendChild(element);
+            });
+        }
+
+        function resetArray() {
+            array = generateRandomArray(5);
+            renderArray();
+            stepInfo.textContent = '點擊「開始排序」來查看排序過程。';
+            isSorting = false;
+        }
+
+        async function startSort() {
+            if (isSorting) return;
+            isSorting = true;
+            stepInfo.textContent = '開始排序...';
+            await bubbleSort();
+            stepInfo.textContent = '排序完成！';
+            isSorting = false;
+        }
+
+        async function bubbleSort() {
+            let n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    renderArray([j, j + 1]);
+                    stepInfo.textContent = `比較第 ${j + 1} 和第 ${j + 2} 個元素：${array[j]} 和 ${array[j + 1]}`;
+                    await sleep(1000); // 延遲1秒
+
+                    if (array[j] > array[j + 1]) {
+                        // 交換
+                        [array[j], array[j + 1]] = [array[j + 1], array[j]];
+                        stepInfo.textContent = `交換：${array[j]} 和 ${array[j + 1]}`;
+                        renderArray([j, j + 1]);
+                        await sleep(1000);
+                    }
+                }
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 初始化
+        resetArray();
+    </script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>插入排序法演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .array-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .array-element {
+            width: 50px;
+            height: 50px;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .highlight {
+            background-color: #FF5722;
+        }
+        .sorted {
+            background-color: #8BC34A;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        .complexity {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>插入排序法 (Insertion Sort)</h1>
+
+    <h2>操作原理</h2>
+    <p>插入排序是一種簡單的排序演算法。它將數組分為已排序和未排序兩部分，初始時已排序部分只包含第一個元素。然後從未排序部分取出第一個元素，插入到已排序部分的正確位置，重複此過程直到未排序部分為空。</p>
+    <p>插入排序在實務上通常比其他簡單的排序演算法（如選擇排序或氣泡排序）更有效率。</p>
+
+    <h2>操作過程</h2>
+    <div class="array-container" id="array-container">
+        <!-- 數組元素將動態生成 -->
+    </div>
+    <button onclick="startSort()">開始排序</button>
+    <button onclick="resetArray()">重置數組</button>
+    <p id="step-info">點擊「開始排序」來查看排序過程。</p>
+
+    <h2>複雜度</h2>
+    <div class="complexity">
+        <p><strong>時間複雜度：</strong></p>
+        <ul>
+            <li>最壞情況：O(n²) - 當數組完全逆序時</li>
+            <li>最佳情況：O(n) - 當數組已經排序時</li>
+            <li>平均情況：O(n²)</li>
+        </ul>
+        <p><strong>空間複雜度：</strong>O(1) - 只使用常數額外的空間</p>
+        <p><strong>穩定性：</strong>穩定排序 - 相等元素的相對順序不會改變</p>
+    </div>
+
+    <script>
+        let array = [];
+        let container = document.getElementById('array-container');
+        let stepInfo = document.getElementById('step-info');
+        let isSorting = false;
+
+        function generateRandomArray(size = 5) {
+            let newArray = [];
+            for (let i = 0; i < size; i++) {
+                newArray.push(Math.floor(Math.random() * 100) + 1);
+            }
+            return newArray;
+        }
+
+        function renderArray(highlightIndices = [], sortedUpTo = -1, displayArray = array) {
+            container.innerHTML = '';
+            displayArray.forEach((num, index) => {
+                let element = document.createElement('div');
+                element.className = 'array-element';
+                if (index <= sortedUpTo) {
+                    element.classList.add('sorted');
+                }
+                if (highlightIndices.includes(index)) {
+                    element.classList.add('highlight');
+                }
+                if (num === null) {
+                    element.style.opacity = '0';
+                } else {
+                    element.textContent = num;
+                }
+                container.appendChild(element);
+            });
+        }
+
+        function resetArray() {
+            array = generateRandomArray(5);
+            renderArray();
+            stepInfo.textContent = '點擊「開始排序」來查看排序過程。';
+            isSorting = false;
+        }
+
+        async function startSort() {
+            if (isSorting) return;
+            isSorting = true;
+            stepInfo.textContent = '開始排序...';
+            await insertionSort();
+            stepInfo.textContent = '排序完成！';
+            isSorting = false;
+        }
+
+        async function insertionSort() {
+            let n = array.length;
+            let tempArray = [...array];
+            for (let i = 1; i < n; i++) {
+                let key = tempArray[i];
+                tempArray[i] = null; // 設為透明
+                renderArray([i], i - 1, tempArray);
+                stepInfo.textContent = `取出第 ${i + 1} 個元素 ${key}，準備插入到已排序部分`;
+                await sleep(1000);
+
+                let j = i - 1;
+                while (j >= 0 && tempArray[j] > key) {
+                    tempArray[j + 1] = tempArray[j];
+                    renderArray([j, j + 1], i - 1, tempArray);
+                    stepInfo.textContent = `比較 ${key} 與第 ${j + 1} 個元素 ${tempArray[j]}，向右移動`;
+                    await sleep(1000);
+                    j--;
+                }
+
+                tempArray[j + 1] = key;
+                renderArray([], i, tempArray);
+                stepInfo.textContent = `插入 ${key} 到正確位置`;
+                await sleep(1000);
+            }
+            array = [...tempArray];
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 初始化
+        resetArray();
+    </script>
+</body>
+</html>

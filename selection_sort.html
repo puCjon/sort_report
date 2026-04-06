@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇排序法演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .array-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .array-element {
+            width: 50px;
+            height: 50px;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .highlight {
+            background-color: #FF5722;
+        }
+        .current-min {
+            background-color: #FFC107;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        .complexity {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>選擇排序法 (Selection Sort)</h1>
+
+    <h2>操作原理</h2>
+    <p>選擇排序是一種簡單的排序演算法。它的工作原理是每一次從待排序的數據元素中選出最小（或最大）的一個元素，存放在序列的起始位置，直到全部待排序的數據元素排完。</p>
+    <p>選擇排序是不穩定的排序方法，因為在交換過程中可能改變相等元素的相對順序。</p>
+
+    <h2>操作過程</h2>
+    <div class="array-container" id="array-container">
+        <!-- 數組元素將動態生成 -->
+    </div>
+    <button onclick="startSort()">開始排序</button>
+    <button onclick="resetArray()">重置數組</button>
+    <p id="step-info">點擊「開始排序」來查看排序過程。</p>
+
+    <h2>複雜度</h2>
+    <div class="complexity">
+        <p><strong>時間複雜度：</strong></p>
+        <ul>
+            <li>最壞情況：O(n²)</li>
+            <li>最佳情況：O(n²)</li>
+            <li>平均情況：O(n²)</li>
+        </ul>
+        <p><strong>空間複雜度：</strong>O(1) - 只使用常數額外的空間</p>
+        <p><strong>穩定性：</strong>不穩定排序 - 相等元素的相對順序可能會改變</p>
+    </div>
+
+    <script>
+        let array = [];
+        let container = document.getElementById('array-container');
+        let stepInfo = document.getElementById('step-info');
+        let isSorting = false;
+
+        function generateRandomArray(size = 5) {
+            let newArray = [];
+            for (let i = 0; i < size; i++) {
+                newArray.push(Math.floor(Math.random() * 100) + 1);
+            }
+            return newArray;
+        }
+
+        function renderArray(highlightIndices = [], minIndex = -1) {
+            container.innerHTML = '';
+            array.forEach((num, index) => {
+                let element = document.createElement('div');
+                element.className = 'array-element';
+                if (highlightIndices.includes(index)) {
+                    element.classList.add('highlight');
+                }
+                if (index === minIndex) {
+                    element.classList.add('current-min');
+                }
+                element.textContent = num;
+                container.appendChild(element);
+            });
+        }
+
+        function resetArray() {
+            array = generateRandomArray(5);
+            renderArray();
+            stepInfo.textContent = '點擊「開始排序」來查看排序過程。';
+            isSorting = false;
+        }
+
+        async function startSort() {
+            if (isSorting) return;
+            isSorting = true;
+            stepInfo.textContent = '開始排序...';
+            await selectionSort();
+            stepInfo.textContent = '排序完成！';
+            isSorting = false;
+        }
+
+        async function selectionSort() {
+            let n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+                let minIndex = i;
+                renderArray([i], minIndex);
+                stepInfo.textContent = `從第 ${i + 1} 個元素開始，尋找最小值`;
+                await sleep(1000);
+
+                for (let j = i + 1; j < n; j++) {
+                    renderArray([i, j], minIndex);
+                    stepInfo.textContent = `比較第 ${j + 1} 個元素 ${array[j]} 與當前最小值 ${array[minIndex]}`;
+                    await sleep(1000);
+
+                    if (array[j] < array[minIndex]) {
+                        minIndex = j;
+                        renderArray([i, j], minIndex);
+                        stepInfo.textContent = `找到新的最小值：${array[minIndex]} 在位置 ${minIndex + 1}`;
+                        await sleep(1000);
+                    }
+                }
+
+                if (minIndex !== i) {
+                    // 交換
+                    [array[i], array[minIndex]] = [array[minIndex], array[i]];
+                    stepInfo.textContent = `交換第 ${i + 1} 個元素 ${array[i]} 與第 ${minIndex + 1} 個元素 ${array[minIndex]}`;
+                    renderArray([i, minIndex]);
+                    await sleep(1000);
+                }
+            }
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // 初始化
+        resetArray();
+    </script>
+</body>
+</html>
