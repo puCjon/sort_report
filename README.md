@@ -2,7 +2,7 @@
 
 學號:11428113  
 姓名:蒲曉駿
-模擬頁面: https://pucjon.github.io/sort_report/
+模擬頁面: [https://pucjon.github.io/sort_report/](https://pucjon.github.io/sort_report/)
 # 前言
 #### 排序是資料結構與演算法中最基本的操作，通常用於搜尋、資料分析與系統優化。這次的報告透過理論分析與程式實驗，比較各個不同排序法的效能差異，進一步了解不同的排序法對於不同資料的表現。
 # 氣泡排序法
