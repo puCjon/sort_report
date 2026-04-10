@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速排序法演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .array-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .array-element {
+            width: 50px;
+            height: 50px;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .highlight {
+            background-color: #FF5722;
+        }
+        .pivot {
+            background-color: #3F51B5;
+        }
+        .range {
+            background-color: #FFC107;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        .complexity {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>快速排序法演示</h1>
+
+    <h2>操作原理</h2>
+    <p>快速排序是一種分治演算法。它從數列中選取一個元素作為「樞紐」，然後將所有小於樞紐的元素移到左邊，所有大於樞紐的元素移到右邊。對左右兩側的子序列遞迴執行相同操作，直到整個數列排序完成。</p>
+
+    <h2>操作過程</h2>
+    <div class="array-container" id="array-container"></div>
+    <button onclick="startSort()">開始排序</button>
+    <button onclick="resetArray()">重置數組</button>
+    <button onclick="window.location.href='index.html'">返回首頁</button>
+    <p id="step-info">點擊「開始排序」來查看快速排序的分割與遞迴過程。</p>
+
+    <h2>複雜度</h2>
+    <div class="complexity">
+        <p><strong>時間複雜度：</strong></p>
+        <ul>
+            <li>最壞情況：O(n²) - 當每次分割極度不平衡時</li>
+            <li>最佳情況：O(n log n) - 當每次分割接近平均時</li>
+            <li>平均情況：O(n log n)</li>
+        </ul>
+        <p><strong>空間複雜度：</strong>O(log n) - 遞迴呼叫堆疊</p>
+        <p><strong>穩定性：</strong>不穩定排序 - 相等元素的相對順序可能改變</p>
+    </div>
+
+    <script>
+        let array = [];
+        let container = document.getElementById('array-container');
+        let stepInfo = document.getElementById('step-info');
+        let isSorting = false;
+
+        function generateRandomArray(size = 7) {
+            let newArray = [];
+            for (let i = 0; i < size; i++) {
+                newArray.push(Math.floor(Math.random() * 90) + 10);
+            }
+            return newArray;
+        }
+
+        function renderArray(highlight = {}, range = {}) {
+            container.innerHTML = '';
+            array.forEach((num, index) => {
+                let element = document.createElement('div');
+                element.className = 'array-element';
+                if (highlight.pivot === index) {
+                    element.classList.add('pivot');
+                }
+                if (highlight.left === index || highlight.right === index) {
+                    element.classList.add('highlight');
+                }
+                if (typeof range.start === 'number' && typeof range.end === 'number' && index >= range.start && index <= range.end) {
+                    element.classList.add('range');
+                }
+                element.textContent = num;
+                container.appendChild(element);
+            });
+        }
+
+        function resetArray() {
+            array = generateRandomArray(7);
+            renderArray();
+            stepInfo.textContent = '點擊「開始排序」來查看快速排序的分割與遞迴過程。';
+            isSorting = false;
+        }
+
+        async function startSort() {
+            if (isSorting) return;
+            isSorting = true;
+            stepInfo.textContent = '開始快速排序...';
+            await quickSort(0, array.length - 1);
+            renderArray();
+            stepInfo.textContent = '排序完成！';
+            isSorting = false;
+        }
+
+        async function quickSort(left, right) {
+            if (left >= right) return;
+            let pivotIndex = Math.floor((left + right) / 2);
+            let pivotValue = array[pivotIndex];
+            stepInfo.textContent = `分割範圍 [${left + 1}, ${right + 1}]，選擇第 ${pivotIndex + 1} 個元素 ${pivotValue} 作為樞紐。`;
+            renderArray({ pivot: pivotIndex }, { start: left, end: right });
+            await sleep(1000);
+
+            let index = await partition(left, right, pivotValue);
+            await quickSort(left, index - 1);
+            await quickSort(index, right);
+        }
+
+        async function partition(left, right, pivotValue) {
+            while (left <= right) {
+                while (array[left] < pivotValue) {
+                    left++;
+                }
+                while (array[right] > pivotValue) {
+                    right--;
+                }
+                if (left <= right) {
+                    stepInfo.textContent = `比較位置 ${left + 1} 和 ${right + 1}：${array[left]} 與 ${array[right]}，執行交換。`;
+                    renderArray({ left, right, pivot: pivotValueIndex(left, right, pivotValue) }, { start: left, end: right });
+                    await sleep(800);
+                    [array[left], array[right]] = [array[right], array[left]];
+                    renderArray({ left, right, pivot: pivotValueIndex(left, right, pivotValue) }, { start: left, end: right });
+                    await sleep(800);
+                    left++;
+                    right--;
+                }
+            }
+            return left;
+        }
+
+        function pivotValueIndex(left, right, pivotValue) {
+            return array.indexOf(pivotValue, left);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        resetArray();
+    </script>
+</body>
+</html>
